@@ -44,11 +44,14 @@ is_fibonacci() {
 # Prompt the user to enter a number
 #read -p "Enter a number: " user_input
 user_input=$1
+# Accept two numbers as input
+num1=$1
+num2=$2
 
-# Check if the input is a positive integer
-if [[ $user_input =~ ^[0-9]+$ ]]; then
-    # Call the is_fibonacci function with the user input
-    is_fibonacci $user_input
+# Check if both inputs are positive integers
+if [[ $num1 =~ ^[0-9]+$ && $num2 =~ ^[0-9]+$ ]]; then
+    echo "Inputs are valid: $num1 and $num2"
 else
-    echo "Invalid input. Please enter a positive integer."
+    echo "Invalid input. Please enter two positive integers."
+    exit 1
 fi
