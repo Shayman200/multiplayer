@@ -1,17 +1,63 @@
-#!/bin/bash
+pipeline {
+    agent any
 
-# Get input numbers from Jenkins
-num1=$1
-num2=$2
+    parameters {
+        string(name: 'user_input', defaultValue: '0', description: 'A numeric parameter')
+    }
 
-# Check if inputs are numbers
-if ! [[ "$num1" =~ ^[0-9]+$ ]] || ! [[ "$num2" =~ ^[0-9]+$ ]]; then
-    echo "Invalid input. Please enter two positive integers."
-    exit 1
-fi
+    environment {
+        OUTPUT_FILE = 'output.html'
+    }
 
-# Perform multiplication
-result=$((num1 * num2))
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/Shayman200/multiplayer.git'  // Replace with your repository URL
+            }
+        }
 
-# Print the result
-echo "The product of $num1 and $num2 is: $result"
+        stage('Run Shell Script') {
+            steps {
+                script {
+                    def output = sh(script: "bash fibvar.sh ${params.user_input}", returnStdout: true).trim()
+                    writeFile file: OUTPUT_FILE, text: "<html><body><h1>Output</h1><p>${output}</p></body></html>"
+                }
+            }
+        }
+
+        stage('Display Parameter') {
+            steps {
+                script {
+                    currentBuild.description = "Numeric parameter is ${params.user_input}"
+                }
+            }
+        }
+
+        stage('Verify Parameter on Web Page') {
+            steps {
+                script {
+                    def description = currentBuild.description
+                    if (description.contains("${params.user_input}")) {
+                        echo "Parameter ${params.user_input} exists on the web page."
+                    } else {
+                        error "Parameter ${params.user_input} does not exist on the web page."
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: OUTPUT_FILE, fingerprint: true
+            publishHTML(target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: '.',
+                reportFiles: OUTPUT_FILE,
+                reportName: 'Shell Script Output'
+            ])
+        }
+    }
+}
