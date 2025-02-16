@@ -9,36 +9,11 @@ is_perfect_square() {
 
     [ $squared -eq $n ]
 }
-
-# Function to check if a number is a Fibonacci number and find its index
-is_fibonacci() {
-    num=$1
-
-    # Calculate two possible values that indicate Fibonacci numbers
-    option1=$((5 * num * num + 4))
-    option2=$((5 * num * num - 4))
-
-    # Check if either of the calculated values is a perfect square
-    if (is_perfect_square $option1) || (is_perfect_square $option2); then
-        echo "$num is a Fibonacci number."
-
-        # Find the index of the Fibonacci number
-        a=0
-        b=1
-        index=0
-
-        # Iterate through Fibonacci numbers until a match is found
-        while [ $a -ne $num ]; do
-            temp=$a
-            a=$b
-            b=$((temp + b))
-            index=$((index + 1))
-        done
-
-        echo "$num is at index $index in the Fibonacci."
-    else
-        echo "$num is not a Fibonacci number."
-    fi
+multiply() {
+    num1=$1
+    num2=$2
+    result=$((num1 * num2))
+    echo "The result of multiplying $num1 and $num2 is: $result"
 }
 
 # Prompt the user to enter a number
@@ -55,3 +30,4 @@ else
     echo "Invalid input. Please enter two positive integers."
     exit 1
 fi
+multiply $num1 $num2
