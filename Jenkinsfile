@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'user_input1', defaultValue: '0', description: 'First numeric parameter')
-        string(name: 'user_input2', defaultValue: '0', description: 'Second numeric parameter')
+        string(name: 'user_input', defaultValue: '0', description: 'A numeric parameter')
     }
 
     environment {
@@ -13,35 +12,35 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/Shayman200/multiplier.git' // Replace with your repository URL
+                git 'https://github.com/Shayman200/multiplayer.git'  // Replace with your repository URL
             }
         }
 
         stage('Run Shell Script') {
             steps {
                 script {
-                    def output = sh(script: "bash fibvar.sh ${params.user_input1} ${params.user_input2}", returnStdout: true).trim()
+                    def output = sh(script: "bash fibvar.sh ${params.user_input}", returnStdout: true).trim()
                     writeFile file: OUTPUT_FILE, text: "<html><body><h1>Output</h1><p>${output}</p></body></html>"
                 }
             }
         }
 
-        stage('Display Parameters') {
+        stage('Display Parameter') {
             steps {
                 script {
-                    currentBuild.description = "Numeric parameters: ${params.user_input1}, ${params.user_input2}"
+                    currentBuild.description = "Numeric parameter is ${params.user_input}"
                 }
             }
         }
 
-        stage('Verify Output on Web Page') {
+        stage('Verify Parameter on Web Page') {
             steps {
                 script {
                     def description = currentBuild.description
-                    if (description.contains("${params.user_input1}") && description.contains("${params.user_input2}")) {
-                        echo "Parameters exist on the web page."
+                    if (description.contains("${params.user_input}")) {
+                        echo "Parameter ${params.user_input} exists on the web page."
                     } else {
-                        error "Parameters do not exist on the web page."
+                        error "Parameter ${params.user_input} does not exist on the web page."
                     }
                 }
             }
