@@ -2,13 +2,7 @@
 #!/bin/bash
 
 # Function to check if a number is a perfect square
-is_perfect_square() {
-    n=$1
-    sqrt=$(echo "sqrt($n)" | bc)
-    squared=$((sqrt * sqrt))
 
-    [ $squared -eq $n ]
-}
 multiply() {
     num1=$1
     num2=$2
