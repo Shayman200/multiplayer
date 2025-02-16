@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/your-repo-url.git' // Replace with your repository URL
+                git 'https://github.com/Shayman200/multiplier.git' // Replace with your repository URL
             }
         }
 
