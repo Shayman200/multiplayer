@@ -1,63 +1,53 @@
-pipeline {
-    agent any
+#!/bin/bash
 
-    parameters {
-        string(name: 'user_input', defaultValue: '0', description: 'A numeric parameter')
-    }
+# Function to check if a number is a perfect square
+is_perfect_square() {
+    n=$1
+    sqrt=$(echo "sqrt($n)" | bc)
+    squared=$((sqrt * sqrt))
 
-    environment {
-        OUTPUT_FILE = 'output.html'
-    }
-
-    stages {
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/szeevi/fibvar.git'  // Replace with your repository URL
-            }
-        }
-
-        stage('Run Shell Script') {
-            steps {
-                script {
-                    def output = sh(script: "bash fibvar.sh ${params.user_input}", returnStdout: true).trim()
-                    writeFile file: OUTPUT_FILE, text: "<html><body><h1>Output</h1><p>${output}</p></body></html>"
-                }
-            }
-        }
-
-        stage('Display Parameter') {
-            steps {
-                script {
-                    currentBuild.description = "Numeric parameter is ${params.user_input}"
-                }
-            }
-        }
-
-        stage('Verify Parameter on Web Page') {
-            steps {
-                script {
-                    def description = currentBuild.description
-                    if (description.contains("${params.user_input}")) {
-                        echo "Parameter ${params.user_input} exists on the web page."
-                    } else {
-                        error "Parameter ${params.user_input} does not exist on the web page."
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: OUTPUT_FILE, fingerprint: true
-            publishHTML(target: [
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: '.',
-                reportFiles: OUTPUT_FILE,
-                reportName: 'Shell Script Output'
-            ])
-        }
-    }
+    [ $squared -eq $n ]
 }
+
+# Function to check if a number is a Fibonacci number and find its index
+is_fibonacci() {
+    num=$1
+
+    # Calculate two possible values that indicate Fibonacci numbers
+    option1=$((5 * num * num + 4))
+    option2=$((5 * num * num - 4))
+
+    # Check if either of the calculated values is a perfect square
+    if (is_perfect_square $option1) || (is_perfect_square $option2); then
+        echo "$num is a Fibonacci number."
+
+        # Find the index of the Fibonacci number
+        a=0
+        b=1
+        index=0
+
+        # Iterate through Fibonacci numbers until a match is found
+        while [ $a -ne $num ]; do
+            temp=$a
+            a=$b
+            b=$((temp + b))
+            index=$((index + 1))
+        done
+
+        echo "$num is at index $index in the Fibonacci."
+    else
+        echo "$num is not a Fibonacci number."
+    fi
+}
+
+# Prompt the user to enter a number
+#read -p "Enter a number: " user_input
+user_input=$1
+
+# Check if the input is a positive integer
+if [[ $user_input =~ ^[0-9]+$ ]]; then
+    # Call the is_fibonacci function with the user input
+    is_fibonacci $user_input
+else
+    echo "Invalid input. Please enter a positive integer."
+fi
